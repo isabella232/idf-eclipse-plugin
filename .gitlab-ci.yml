@@ -9,7 +9,6 @@ image: ${CI_DOCKER_REGISTRY}/esp32-ci-env
 variables:
   ARCHIVE_DIR: "dist"
   ORIGIN_NAME: "com.espressif.idf.update-2.3.0-SNAPSHOT.zip"
-  PRODUCTS_PATH: ""
 
 .add_gh_key_remote: &add_gh_key_remote |
   cit_add_ssh_key "${GH_PUSH_KEY}"
@@ -28,7 +27,7 @@ build:
   artifacts:
     paths:
       - ${ARCHIVE_DIR}/
-      - ${PRODUCTS_PATH}/
+      - ide.json
   
     expire_in: 2 weeks
   script:
@@ -46,8 +45,7 @@ build:
     - rm -v "${KEYSTORE_FILE}"
     - mkdir -p ${ARCHIVE_DIR} && mv -v releng/com.espressif.idf.update/target/${ORIGIN_NAME} ${ARCHIVE_DIR}/${ARCHIVE_NAME}
     - ls -l ${ARCHIVE_DIR}
-    - PRODUCTS_PATH=${PWD}/releng/com.espressif.idf.product/target/products/
-    - echo ${PRODUCTS_PATH}
+    - echo "PRODUCTS_PATH=${PWD}/releng/com.espressif.idf.product/target/products/">>ide.json
 
 # osx_code_sign:
 #   stage: codesign
@@ -93,6 +91,7 @@ build:
   script:
     # getting the corresponding unique suffix
     - UNIQ_SUFFIX=$(cat ${ARCHIVE_DIR}/uniq_suffix_value)
+    - PRODUCTS_PATH=$(cat product.json | grep PRODUCTS_PATH | cut -d = -f2)
     - WIN32_IDE_PATH= ${PRODUCTS_PATH}/Espressif-IDE-*-win32.win32.x86_64.zip
     - MACOSX_IDE_PATH= ${PRODUCTS_PATH}/Espressif-IDE-*-macosx.cocoa.x86_64.tar.gz
     - LINUX_IDE_PATH= ${PRODUCTS_PATH}/Espressif-IDE-*-linux.gtk.x86_64.tar.gz
@@ -151,7 +150,7 @@ public_http_beta:
 
 publish_ide:
   <<: *upload_ide
-  stage: public_deploy
+  stage: private_deploy
   only:
     - /^v[0-9].*$/
   variables:
