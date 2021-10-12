@@ -91,7 +91,7 @@ build:
   script:
     # getting the corresponding unique suffix
     - UNIQ_SUFFIX=$(cat ${ARCHIVE_DIR}/uniq_suffix_value)
-    - PRODUCTS_PATH=$(cat product.json | grep PRODUCTS_PATH | cut -d = -f2)
+    - PRODUCTS_PATH=$(cat ide.json | grep PRODUCTS_PATH | cut -d = -f2)
     - WIN32_IDE_PATH= ${PRODUCTS_PATH}/Espressif-IDE-*-win32.win32.x86_64.zip
     - MACOSX_IDE_PATH= ${PRODUCTS_PATH}/Espressif-IDE-*-macosx.cocoa.x86_64.tar.gz
     - LINUX_IDE_PATH= ${PRODUCTS_PATH}/Espressif-IDE-*-linux.gtk.x86_64.tar.gz
