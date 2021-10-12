@@ -110,6 +110,7 @@ public_http_beta:
     SRV_LATEST_NAME: beta
     SRV_HTTP_URL: ${DL_SERVER_HTTP}/${DL_SERVER_CD_DIR}
 
+# Espressif-IDE build and deploy 
 publish_ide:
   stage: build
   image: jimador/docker-jdk-8-maven-node
