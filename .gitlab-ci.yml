@@ -111,9 +111,8 @@ public_http_beta:
     SRV_HTTP_URL: ${DL_SERVER_HTTP}/${DL_SERVER_CD_DIR}
 
 publish_ide:
-  stage: public_deploy
+  stage: build
   image: jimador/docker-jdk-8-maven-node
-  when: manual
   tags: ["build_maven", "build"]
   variables:
     GIT_STRATEGY: none
