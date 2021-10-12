@@ -126,9 +126,9 @@ publish_ide:
     SRV_HTTP_URL: ${DL_SERVER_HTTP}/${DL_SERVER_IDE_DIR}
   script:
     # Use an unique name for the archive
-    - UNIQ_SUFFIX="$(git describe --tags --dirty --abbrev=8)"
-    - mkdir -p ${ARCHIVE_DIR} && echo "${UNIQ_SUFFIX}" > ${ARCHIVE_DIR}/uniq_suffix_value
-    - ARCHIVE_NAME=${ORIGIN_NAME/2.3.0-SNAPSHOT/$UNIQ_SUFFIX}
+    # - UNIQ_SUFFIX="$(git describe --tags --dirty --abbrev=8)"
+    # - mkdir -p ${ARCHIVE_DIR} && echo "${UNIQ_SUFFIX}" > ${ARCHIVE_DIR}/uniq_suffix_value
+    # - ARCHIVE_NAME=${ORIGIN_NAME/2.3.0-SNAPSHOT/$UNIQ_SUFFIX}
     # build
     - export JARSIGNER_KEYSTORE_B64=${JARSIGNER_REL_KEYSTORE_B64:-${JARSIGNER_DEV_KEYSTORE_B64}}
     - export JARSIGNER_STOREPASS=${JARSIGNER_REL_STOREPASS:-${JARSIGNER_DEV_STOREPASS}}
@@ -137,11 +137,11 @@ publish_ide:
     - printf "%s" "${JARSIGNER_KEYSTORE_B64}" | base64 -d --ignore-garbage - > "${KEYSTORE_FILE}"
     - mvn -e -X clean install -Djarsigner.keystore="${KEYSTORE_FILE}" -Djarsigner.alias="${JARSIGNER_ALIAS}" -Djarsigner.storepass="${JARSIGNER_STOREPASS}"
     - rm -v "${KEYSTORE_FILE}"
-    - mkdir -p ${ARCHIVE_DIR} && mv -v releng/com.espressif.idf.update/target/${ORIGIN_NAME} ${ARCHIVE_DIR}/${ARCHIVE_NAME}
-    - ls -l ${ARCHIVE_DIR}
+    # - mkdir -p ${ARCHIVE_DIR} && mv -v releng/com.espressif.idf.update/target/${ORIGIN_NAME} ${ARCHIVE_DIR}/${ARCHIVE_NAME}
+    # - ls -l ${ARCHIVE_DIR}
   
       # getting the corresponding unique suffix
-    - UNIQ_SUFFIX=$(cat ${ARCHIVE_DIR}/uniq_suffix_value)
+    # - UNIQ_SUFFIX=$(cat ${ARCHIVE_DIR}/uniq_suffix_value)
     - WIN32_IDE_PATH= releng/com.espressif.idf.update/Espressif-IDE-*-win32.win32.x86_64.zip
     - MACOSX_IDE_PATH= releng/com.espressif.idf.update/Espressif-IDE-*-macosx.cocoa.x86_64.tar.gz
     - LINUX_IDE_PATH= releng/com.espressif.idf.update/Espressif-IDE-*-linux.gtk.x86_64.tar.gz
