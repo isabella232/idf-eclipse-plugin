@@ -124,6 +124,9 @@ publish_ide:
     SRV_UPLOAD_PATH: ${DL_SERVER_SSH}:${DL_SERVER_IDE_DIR}
     SRV_LATEST_NAME: latest
     SRV_HTTP_URL: ${DL_SERVER_HTTP}/${DL_SERVER_IDE_DIR}
+    WIN32_IDE_PATH: ${PWD}/releng/com.espressif.idf.update/Espressif-IDE-*-win32.win32.x86_64.zip
+    MACOSX_IDE_PATH: ${PWD}/releng/com.espressif.idf.update/Espressif-IDE-*-macosx.cocoa.x86_64.tar.gz
+    LINUX_IDE_PATH: ${PWD}/releng/com.espressif.idf.update/Espressif-IDE-*-linux.gtk.x86_64.tar.gz
   script:
     # Use an unique name for the archive
     # - UNIQ_SUFFIX="$(git describe --tags --dirty --abbrev=8)"
@@ -142,9 +145,9 @@ publish_ide:
   
       # getting the corresponding unique suffix
     # - UNIQ_SUFFIX=$(cat ${ARCHIVE_DIR}/uniq_suffix_value)
-    - WIN32_IDE_PATH= releng/com.espressif.idf.update/Espressif-IDE-*-win32.win32.x86_64.zip
-    - MACOSX_IDE_PATH= releng/com.espressif.idf.update/Espressif-IDE-*-macosx.cocoa.x86_64.tar.gz
-    - LINUX_IDE_PATH= releng/com.espressif.idf.update/Espressif-IDE-*-linux.gtk.x86_64.tar.gz
+    # - WIN32_IDE_PATH= ${PWD}/releng/com.espressif.idf.update/Espressif-IDE-*-win32.win32.x86_64.zip
+    # - MACOSX_IDE_PATH= ${PWD}/releng/com.espressif.idf.update/Espressif-IDE-*-macosx.cocoa.x86_64.tar.gz
+    # - LINUX_IDE_PATH= ${PWD}/releng/com.espressif.idf.update/Espressif-IDE-*-linux.gtk.x86_64.tar.gz
     # upload archive
     - cit_add_ssh_key "${SRV_KEY}"
     - scp ${WIN32_IDE_PATH} ${SRV_UPLOAD_PATH}
