@@ -1,5 +1,4 @@
 stages:
-  - ide_build
   - build
   - private_deploy
   - public_deploy
@@ -27,6 +26,9 @@ build:
   artifacts:
     paths:
       - ${ARCHIVE_DIR}/
+      - ${WIN32_IDE_PATH}/
+      - ${MACOSX_IDE_PATH}/
+      - ${LINUX_IDE_PATH}/
   
     expire_in: 2 weeks
   script:
@@ -44,6 +46,28 @@ build:
     - rm -v "${KEYSTORE_FILE}"
     - mkdir -p ${ARCHIVE_DIR} && mv -v releng/com.espressif.idf.update/target/${ORIGIN_NAME} ${ARCHIVE_DIR}/${ARCHIVE_NAME}
     - ls -l ${ARCHIVE_DIR}
+    # IDE product files
+    - WIN32_IDE_PATH= ${PWD}/releng/com.espressif.idf.update/Espressif-IDE-2.3.0-beta-win32.win32.x86_64.zip
+    - MACOSX_IDE_PATH= ${PWD}/releng/com.espressif.idf.update/Espressif-IDE-2.3.0-beta-macosx.cocoa.x86_64.tar.gz
+    - LINUX_IDE_PATH= ${PWD}/releng/com.espressif.idf.update/Espressif-IDE-2.3.0-beta-linux.gtk.x86_64.tar.gz
+
+  # Espressif-IDE deploy 
+.upload_ide_template: &upload_ide_template
+  when: manual
+  tags:
+    - deploy
+  dependencies:
+    - build
+  script:
+    # upload archive
+    - cit_add_ssh_key "${SRV_KEY}"
+    - scp ${WIN32_IDE_PATH} ${SRV_UPLOAD_PATH}
+    - scp ${MACOSX_IDE_PATH} ${SRV_UPLOAD_PATH}
+    - scp ${LINUX_IDE_PATH} ${SRV_UPLOAD_PATH}
+    # Show info
+    - echo -e "\n Espressif-IDE win32 was published there:\n\n${SRV_HTTP_URL}/${WIN32_IDE_PATH}"
+    - echo -e "\n Espressif-IDE macosx was published there:\n\n${SRV_HTTP_URL}/${MACOSX_IDE_PATH}"
+    - echo -e "\n inux Espressif-IDE linux was published there:\n\n${SRV_HTTP_URL}/${LINUX_IDE_PATH}"
 
 .upload_template: &upload_template
   when: manual
@@ -111,11 +135,9 @@ public_http_beta:
     SRV_LATEST_NAME: beta
     SRV_HTTP_URL: ${DL_SERVER_HTTP}/${DL_SERVER_CD_DIR}
 
-# Espressif-IDE build and deploy 
-publish_ide:
-  stage: ide_build
-  image: jimador/docker-jdk-8-maven-node
-  tags: ["build_maven", "build"]
+public_ide_artifacts:
+  <<: *upload_ide_template
+  stage: private_deploy
   variables:
     GIT_STRATEGY: none
     SRV_KEY: ${DL_KEY}
@@ -124,36 +146,6 @@ publish_ide:
     SRV_UPLOAD_PATH: ${DL_SERVER_SSH}:${DL_SERVER_IDE_DIR}
     SRV_LATEST_NAME: latest
     SRV_HTTP_URL: ${DL_SERVER_HTTP}/${DL_SERVER_IDE_DIR}
-  script:
-    # Use an unique name for the archive
-    # - UNIQ_SUFFIX="$(git describe --tags --dirty --abbrev=8)"
-    # - mkdir -p ${ARCHIVE_DIR} && echo "${UNIQ_SUFFIX}" > ${ARCHIVE_DIR}/uniq_suffix_value
-    # - ARCHIVE_NAME=${ORIGIN_NAME/2.3.0-SNAPSHOT/$UNIQ_SUFFIX}
-    # build
-    - export JARSIGNER_KEYSTORE_B64=${JARSIGNER_REL_KEYSTORE_B64:-${JARSIGNER_DEV_KEYSTORE_B64}}
-    - export JARSIGNER_STOREPASS=${JARSIGNER_REL_STOREPASS:-${JARSIGNER_DEV_STOREPASS}}
-    - export JARSIGNER_ALIAS=${JARSIGNER_REL_ALIAS:-${JARSIGNER_DEV_ALIAS}}
-    - KEYSTORE_FILE="${PWD}/${JARSIGNER_KEYSTORE}"
-    - printf "%s" "${JARSIGNER_KEYSTORE_B64}" | base64 -d --ignore-garbage - > "${KEYSTORE_FILE}"
-    - mvn -e -X clean install -Djarsigner.keystore="${KEYSTORE_FILE}" -Djarsigner.alias="${JARSIGNER_ALIAS}" -Djarsigner.storepass="${JARSIGNER_STOREPASS}"
-    - rm -v "${KEYSTORE_FILE}"
-    # - mkdir -p ${ARCHIVE_DIR} && mv -v releng/com.espressif.idf.update/target/${ORIGIN_NAME} ${ARCHIVE_DIR}/${ARCHIVE_NAME}
-    # - ls -l ${ARCHIVE_DIR}
-  
-      # getting the corresponding unique suffix
-    # - UNIQ_SUFFIX=$(cat ${ARCHIVE_DIR}/uniq_suffix_value)
-    - WIN32_IDE_PATH= ${PWD}/releng/com.espressif.idf.update/Espressif-IDE-2.3.0-beta-win32.win32.x86_64.zip
-    - MACOSX_IDE_PATH= ${PWD}/releng/com.espressif.idf.update/Espressif-IDE-2.3.0-beta-macosx.cocoa.x86_64.tar.gz
-    - LINUX_IDE_PATH= ${PWD}/releng/com.espressif.idf.update/Espressif-IDE-2.3.0-beta-linux.gtk.x86_64.tar.gz
-    # upload archive
-    - cit_add_ssh_key "${SRV_KEY}"
-    - scp ${WIN32_IDE_PATH} ${SRV_UPLOAD_PATH}
-    - scp ${MACOSX_IDE_PATH} ${SRV_UPLOAD_PATH}
-    - scp ${LINUX_IDE_PATH} ${SRV_UPLOAD_PATH}
-    # Show info
-    - echo -e "\nAn win32 Espressif-IDE was published there:\n\n${SRV_HTTP_URL}/${WIN32_IDE_PATH}"
-    - echo -e "\nAn macosx Espressif-IDE was published there:\n\n${SRV_HTTP_URL}/${MACOSX_IDE_PATH}"
-    - echo -e "\nAn linux Espressif-IDE was published there:\n\n${SRV_HTTP_URL}/${LINUX_IDE_PATH}"
 
 .git_sync_template: &git_sync_template
   stage: public_deploy
