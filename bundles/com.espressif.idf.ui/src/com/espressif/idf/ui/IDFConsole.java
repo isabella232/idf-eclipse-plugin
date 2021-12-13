@@ -22,15 +22,23 @@ import com.espressif.idf.core.logging.Logger;
  */
 public class IDFConsole
 {
+	private MessageConsole messageConsole;
+	
 	public MessageConsoleStream getConsoleStream()
 	{
 		return getConsoleStream("ESP-IDF Console"); //$NON-NLS-1$
+	}
+	
+	public void clearConsole()
+	{
+		messageConsole.clearConsole();
 	}
 	
 	public MessageConsoleStream getConsoleStream(String consoleName)
 	{
 		// Create Tools console
 		MessageConsole msgConsole = findConsole(consoleName);
+		messageConsole = msgConsole;
 		msgConsole.clearConsole();
 		MessageConsoleStream console = msgConsole.newMessageStream();
 		msgConsole.activate();
